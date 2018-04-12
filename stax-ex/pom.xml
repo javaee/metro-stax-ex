@@ -2,7 +2,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -90,11 +90,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.xml.stream</groupId>
-            <artifactId>stax-api</artifactId>
-            <version>1.0-2</version>
-        </dependency>
-        <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.1</version>
@@ -104,6 +99,11 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.7.0</version>
         </dependency>
 <!--        <dependency>
             <groupId>com.sun.xml.stream</groupId>
@@ -129,22 +129,51 @@
                 <configuration>
                     <rules>
                         <requireJavaVersion>
-                            <version>[1.6,)</version>
+                            <version>[1.7,)</version>
                         </requireJavaVersion>
                         <requireMavenVersion>
                             <version>[3.0.3,)</version>
                         </requireMavenVersion>
-                        <DependencyConvergence />
+                        <!--<DependencyConvergence />-->
                     </rules>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.7.0</version>
+                <executions>
+                    <execution>
+                        <!--compile all as JPMS module-->
+                        <id>default-compile</id>
+                        <configuration>
+                            <release>9</release>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!--replace classes with source/target 7-->
+                        <id>base-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>7</release>
+                            <excludes>
+                                <exclude>module-info.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <release>7</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
             <plugin>
@@ -248,7 +277,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -276,68 +305,4 @@
         <findbugs.threshold>Low</findbugs.threshold>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>jdk9-setup</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-compile</id>
-                                <configuration>
-                                    <jdkToolchain>
-                                        <version>9</version>
-                                    </jdkToolchain>
-                                    <source>9</source>
-                                    <target>9</target>
-                                    <includes>
-                                        <include>module-info.java</include>
-                                    </includes>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>base-compile</id>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                                <configuration>
-                                    <source>1.7</source>
-                                    <target>1.7</target>
-                                    <jdkToolchain>
-                                        <version>1.7</version>
-                                    </jdkToolchain>
-                                    <excludes>
-                                        <exclude>module-info.java</exclude>
-                                    </excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>maven-bundle-plugin</artifactId>
-                        <configuration>
-                            <instructions>
-                                <_failok>true</_failok>
-                            </instructions>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.0-M1</version>
-                        <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
